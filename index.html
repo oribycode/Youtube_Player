@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Player</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2875/2875384.png" type="image/png">
+
+  <!-- Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- PWA Meta -->
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      background: #f8f8f8;
+    }
+
+    h2 {
+      text-align: left;
+      margin-bottom: 10px;
+    }
+
+    .input-section {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 6px 0 0 6px;
+    }
+
+    button {
+      padding: 10px 16px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-left: none;
+      background-color: #ff0000;
+      color: white;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+    }
+
+    iframe {
+      width: 100%;
+      max-width: 600px;
+      height: 340px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      display: block;
+      margin: 10px auto;
+    }
+
+    .history {
+      max-width: 600px;
+      margin: 10px auto;
+    }
+
+    .history a {
+      display: block;
+      text-decoration: none;
+      color: #333;
+      padding: 5px 0;
+      border-bottom: 1px dashed #ccc;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .input-section {
+        flex-direction: row;
+      }
+
+      input[type="text"], button {
+        font-size: 14px;
+      }
+
+      iframe {
+        height: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>YouTube Player</h2>
+
+  <div class="input-section">
+    <input type="text" id="videoInput" placeholder="Enter YouTube video ID..." />
+    <button onclick="playVideo()">Play</button>
+  </div>
+
+  <hr/>
+
+  <iframe id="player" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+  <hr/>
+
+  <div class="history">
+    <h3>History</h3>
+    <div id="historyLinks"></div>
+  </div>
+
+  <hr/>
+
+  <footer>
+    &copy; 2025 | YouTube Player by Sultan
+  </footer>
+
+  <script>
+    const input = document.getElementById("videoInput");
+    const player = document.getElementById("player");
+    const historyDiv = document.getElementById("historyLinks");
+
+    function playVideo() {
+      const id = input.value.trim();
+      if (id) {
+        const url = `https://www.youtube.com/embed/${id}?autoplay=1`;
+        player.src = url;
+        addToHistory(id);
+      }
+    }
+
+    function addToHistory(id) {
+      let history = JSON.parse(localStorage.getItem("history")) || [];
+      if (!history.includes(id)) {
+        history.unshift(id);
+        localStorage.setItem("history", JSON.stringify(history));
+        renderHistory();
+      }
+    }
+
+    function renderHistory() {
+      const history = JSON.parse(localStorage.getItem("history")) || [];
+      historyDiv.innerHTML = "";
+      history.forEach(id => {
+        const link = document.createElement("a");
+        link.href = "#";
+        link.textContent = `https://music.youtube.com/watch?v=${id}`;
+        link.onclick = () => {
+          input.value = id;
+          playVideo();
+        };
+        historyDiv.appendChild(link);
+      });
+    }
+
+    renderHistory();
+  </script>
+
+  <!-- PWA Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker Registered!', reg))
+        .catch(err => console.error('SW registration failed:', err));
+    }
+  </script>
+</body>
+</html>
