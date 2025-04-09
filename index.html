@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YouTube Player</title>
+  <title>YouTube Music & Video Player</title>
 
   <!-- Favicon -->
   <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2875/2875384.png" type="image/png">
@@ -103,11 +103,11 @@
 </head>
 <body>
 
-  <h2>YouTube Player</h2>
+  <h2>YouTube Music & Video Player</h2>
 
   <div class="input-section">
-    <input type="text" id="videoInput" placeholder="Enter YouTube video ID..." />
-    <button onclick="playVideo()">Play</button>
+    <input type="text" id="videoInput" placeholder="Enter YouTube Video/Audio URL..." />
+    <button onclick="playMedia()">Play</button>
   </div>
 
   <hr/>
@@ -132,19 +132,31 @@
     const player = document.getElementById("player");
     const historyDiv = document.getElementById("historyLinks");
 
-    function playVideo() {
-      const id = input.value.trim();
-      if (id) {
-        const url = `https://www.youtube.com/embed/${id}?autoplay=1`;
-        player.src = url;
-        addToHistory(id);
+    function playMedia() {
+      const url = input.value.trim();
+      if (url) {
+        let mediaUrl = '';
+        if (url.includes('music.youtube.com')) {
+          // It's a YouTube Music URL
+          const videoId = new URL(url).searchParams.get('v');
+          mediaUrl = `https://music.youtube.com/embed/${videoId}?autoplay=1`;
+        } else if (url.includes('youtube.com')) {
+          // It's a YouTube Video URL
+          const videoId = new URL(url).searchParams.get('v');
+          mediaUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        }
+
+        if (mediaUrl) {
+          player.src = mediaUrl;
+          addToHistory(url);
+        }
       }
     }
 
-    function addToHistory(id) {
+    function addToHistory(url) {
       let history = JSON.parse(localStorage.getItem("history")) || [];
-      if (!history.includes(id)) {
-        history.unshift(id);
+      if (!history.includes(url)) {
+        history.unshift(url);
         localStorage.setItem("history", JSON.stringify(history));
         renderHistory();
       }
@@ -153,13 +165,13 @@
     function renderHistory() {
       const history = JSON.parse(localStorage.getItem("history")) || [];
       historyDiv.innerHTML = "";
-      history.forEach(id => {
+      history.forEach(url => {
         const link = document.createElement("a");
         link.href = "#";
-        link.textContent = `https://music.youtube.com/watch?v=${id}`;
+        link.textContent = url;
         link.onclick = () => {
-          input.value = id;
-          playVideo();
+          input.value = url;
+          playMedia();
         };
         historyDiv.appendChild(link);
       });
