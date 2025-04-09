@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yt-music-cache-v1';
+const CACHE_NAME = 'yt-music-video-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
